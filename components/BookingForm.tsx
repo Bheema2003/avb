@@ -14,6 +14,8 @@ const BookingForm = () => {
     contactNumber: '',
   });
   const [loading, setLoading] = useState(false);
+  const [successOpen, setSuccessOpen] = useState(false);
+  const [submitted, setSubmitted] = useState<any>(null);
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -45,7 +47,8 @@ const BookingForm = () => {
       });
       
       if (response.ok) {
-        alert('Booking request submitted successfully!');
+        setSubmitted({ ...formData, tripType: activeTab });
+        setSuccessOpen(true);
         setFormData({
           name: '',
           pickupLocation: '',
@@ -54,6 +57,9 @@ const BookingForm = () => {
           pickupTime: '',
           contactNumber: '',
         });
+      } else if (response.status === 401) {
+        alert('Please login to book a ride.');
+        window.location.href = '/login';
       } else {
         alert('Failed to submit booking request.');
       }
@@ -173,6 +179,38 @@ const BookingForm = () => {
           {loading ? 'Submitting...' : 'FIND CAB NEAR ME'}
         </button>
       </form>
+      {successOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-green-100 text-green-700 flex items-center justify-center">
+                ✓
+              </div>
+              <div className="text-lg font-bold">Booking Submitted</div>
+            </div>
+            <p className="text-sm text-gray-600 mb-4">We received your request. We will contact you shortly.</p>
+            {submitted && (
+              <div className="text-sm text-gray-800 space-y-1 mb-6">
+                <div className="flex justify-between"><span className="text-gray-500">Service:</span><span className="font-medium">{submitted.tripType}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">Name:</span><span className="font-medium">{submitted.name}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">Pickup:</span><span className="font-medium">{submitted.pickupLocation}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">Drop:</span><span className="font-medium">{submitted.dropLocation || '-'}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">Date:</span><span className="font-medium">{submitted.pickupDate}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">Time:</span><span className="font-medium">{submitted.pickupTime}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">Contact:</span><span className="font-medium">{submitted.contactNumber}</span></div>
+              </div>
+            )}
+            <div className="flex gap-3">
+              <button onClick={() => setSuccessOpen(false)} className="flex-1 bg-black text-white py-2.5 rounded-lg font-semibold hover:bg-gray-800 transition-colors">
+                Close
+              </button>
+              <a href="/dashboard" className="flex-1 bg-gray-100 text-black py-2.5 rounded-lg font-semibold text-center hover:bg-gray-200 transition-colors">
+                View Dashboard
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

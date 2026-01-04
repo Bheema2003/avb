@@ -5,16 +5,35 @@ import { cookies } from 'next/headers';
 
 export async function POST(request: Request) {
   try {
-    // Optimization: Parallelize connection and JSON parsing
+    const cookieStore = await cookies();
+    const userToken = cookieStore.get('user_token')?.value;
+    if (!userToken) {
+      return NextResponse.json(
+        { success: false, error: 'Please login to book a ride' },
+        { status: 401 }
+      );
+    }
+
     const [body] = await Promise.all([
       request.json(),
       connectDB()
     ]);
-    const cookieStore = await cookies();
-    const userToken = cookieStore.get('user_token')?.value;
-    const bookingBody = userToken ? { ...body, userId: userToken } : body;
+
+    const bookingBody = { ...body, userId: userToken };
     const booking = await Booking.create(bookingBody);
-    return NextResponse.json({ success: true, data: booking }, { status: 201 });
+
+    const gateway = process.env.EMAIL_GATEWAY_URL || 'http://localhost:4000/api/bookings';
+    let emailSent = false;
+    try {
+      const resp = await fetch(gateway, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      emailSent = resp.ok;
+    } catch {}
+
+    return NextResponse.json({ success: true, data: booking, emailSent }, { status: 201 });
   } catch (error) {
     console.error('Error creating booking:', error);
     return NextResponse.json({ success: false, error: 'Failed to create booking' }, { status: 500 });

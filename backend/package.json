@@ -1,0 +1,28 @@
+{
+  "name": "avbcab-email-backend",
+  "version": "1.0.0",
+  "description": "Express backend to email cab booking details via Gmail SMTP",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [
+    "express",
+    "nodemailer",
+    "gmail",
+    "smtp",
+    "cors"
+  ],
+  "author": "AVB CABS",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "nodemailer": "^6.9.8"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

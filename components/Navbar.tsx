@@ -14,22 +14,24 @@ const Navbar = () => {
       if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
       return null;
     };
-    const userToken = getCookie('user_token');
     const adminToken = getCookie('admin_token');
     const name = getCookie('user_name');
-    setUserLoggedIn(!!userToken);
+    setUserLoggedIn(!!name);
     setAdminLoggedIn(!!adminToken);
     setUserName(name ? decodeURIComponent(name) : null);
   }, []);
 
-  const handleUserLogout = () => {
-    document.cookie = 'user_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-    document.cookie = 'user_name=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+  const handleUserLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch {}
     window.location.href = '/';
   };
 
-  const handleAdminLogout = () => {
-    document.cookie = 'admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+  const handleAdminLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch {}
     window.location.href = '/';
   };
 

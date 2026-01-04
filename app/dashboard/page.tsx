@@ -18,10 +18,13 @@ export default function UserDashboard() {
       if (parts.length === 2) return parts.pop()?.split(';').shift();
     };
     
-    const name = getCookie('user_name');
-    if (name) {
-      setUserName(decodeURIComponent(name));
+    const userMarker = getCookie('user_name');
+    if (!userMarker) {
+      router.push('/login');
+      return;
     }
+
+    setUserName(decodeURIComponent(userMarker));
 
     const fetchBookings = async () => {
       try {
@@ -40,10 +43,10 @@ export default function UserDashboard() {
     fetchBookings();
   }, []);
 
-  const handleLogout = () => {
-    // Clear cookies
-    document.cookie = 'user_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-    document.cookie = 'user_name=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch {}
     router.push('/');
   };
 
@@ -100,7 +103,12 @@ export default function UserDashboard() {
             {loading ? (
               <div className="text-gray-400">Loading your bookings...</div>
             ) : bookings.length === 0 ? (
-              <div className="text-gray-400">No bookings yet.</div>
+              <div className="flex flex-col items-center gap-4">
+                <div className="text-gray-400">No bookings yet</div>
+                <Link href="/" className="inline-block bg-black text-white px-6 py-2 rounded-full font-medium hover:bg-gray-800 transition-colors">
+                  Book Your First Ride
+                </Link>
+              </div>
             ) : (
               <div className="text-left space-y-4">
                 {bookings.map((b) => (
