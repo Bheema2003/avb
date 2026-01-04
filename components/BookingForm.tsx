@@ -61,7 +61,14 @@ const BookingForm = () => {
         alert('Please login to book a ride.');
         window.location.href = '/login';
       } else {
-        alert('Failed to submit booking request.');
+        let msg = 'Failed to submit booking request.';
+        try {
+          const err = await response.json();
+          if (err?.error) {
+            msg = `${err.error}${err.detail ? `: ${err.detail}` : ''}`;
+          }
+        } catch {}
+        alert(msg);
       }
     } catch (error) {
       console.error('Error:', error);

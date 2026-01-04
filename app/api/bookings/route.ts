@@ -3,6 +3,8 @@ import connectDB from '@/lib/db';
 import Booking from '@/models/Booking';
 import { cookies } from 'next/headers';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   try {
     const cookieStore = await cookies();
@@ -36,7 +38,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, data: booking, emailSent }, { status: 201 });
   } catch (error) {
     console.error('Error creating booking:', error);
-    return NextResponse.json({ success: false, error: 'Failed to create booking' }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'Failed to create booking', detail: (error as Error).message }, { status: 500 });
   }
 }
 
