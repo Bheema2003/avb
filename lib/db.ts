@@ -23,6 +23,7 @@ async function connectDB() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
+      autoIndex: true,
     };
 
     const uri = process.env.MONGODB_URI;

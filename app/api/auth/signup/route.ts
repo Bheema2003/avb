@@ -3,6 +3,8 @@ import connectDB from '@/lib/db';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   try {
     // Optimization: Start DB connection and parse JSON in parallel
@@ -41,7 +43,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Signup error:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to create user' },
+      { success: false, error: 'Failed to create user', detail: (error as Error).message },
       { status: 500 }
     );
   }
