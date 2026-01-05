@@ -24,14 +24,14 @@ export async function POST(request: Request) {
     const bookingBody = { ...body, userId: userToken };
     const booking = await Booking.create(bookingBody);
 
-    const gateway =
-      process.env.EMAIL_GATEWAY_URL ||
-      process.env.NEXT_PUBLIC_EMAIL_GATEWAY_URL ||
-      'https://avb-email-backend.onrender.com/api/bookings';
+    const localBase = process.env.NEXT_PUBLIC_EMAIL_GATEWAY_URL || 'http://localhost:4000';
+    const renderBase = process.env.EMAIL_GATEWAY_URL || 'https://avb-email-backend.onrender.com';
+    const localHealth = `${localBase}/health`;
+    const localGateway = `${localBase}/api/bookings`;
+    const renderGateway = `${renderBase}/api/bookings`;
     let emailQueued = false;
     try {
-      if (gateway) {
-        emailQueued = true;
+      emailQueued = true;
       const payload = {
         name: body.name,
         contactNumber: body.contactNumber,
@@ -41,12 +41,31 @@ export async function POST(request: Request) {
         pickupTime: body.pickupTime,
         tripType: body.tripType,
       };
-      fetch(gateway, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      }).catch(() => {});
-      }
+      // Fire-and-forget with local-first fallback
+      // @ts-ignore
+      (async () => {
+        try {
+          const ping = await fetch(localHealth, { method: 'GET' });
+          if (ping.ok) {
+            const resp = await fetch(localGateway, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            });
+            if (resp.ok) {
+              return;
+            }
+            throw new Error('Local email gateway responded with non-2xx');
+          }
+        } catch {}
+        try {
+          await fetch(renderGateway, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+        } catch {}
+      })();
     } catch {}
 
     return NextResponse.json({ success: true, data: booking, emailQueued }, { status: 201 });

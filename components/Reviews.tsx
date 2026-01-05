@@ -36,12 +36,7 @@ const Reviews = () => {
   };
 
   const handleWrite = () => {
-    const token = getCookie('user_token');
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-    setOpen(true);
+    router.push('/reviews/new');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
