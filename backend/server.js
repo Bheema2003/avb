@@ -16,6 +16,17 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
+// SMTP health check
+app.get('/health/smtp', async (req, res) => {
+  try {
+    const transporter = createTransporter();
+    await transporter.verify();
+    res.json({ status: 'ok', smtp: 'verified', email: process.env.SMTP_EMAIL });
+  } catch (err) {
+    console.error('SMTP verify error:', err);
+    res.status(500).json({ status: 'error', smtp: 'failed', message: err?.message || String(err) });
+  }
+});
 // Normalize incoming booking payload to a consistent shape
 function normalizeBooking(body) {
   return {
@@ -125,7 +136,8 @@ app.post('/api/bookings', async (req, res) => {
     return res.json({ success: true, message: 'Booking email sent' });
   } catch (err) {
     console.error('Email send error:', err);
-    return res.status(500).json({ success: false, error: 'Failed to send booking email' });
+    const message = err?.message || String(err);
+    return res.status(500).json({ success: false, error: 'Failed to send booking email', detail: message });
   }
 });
 
