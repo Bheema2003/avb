@@ -24,7 +24,10 @@ export async function POST(request: Request) {
     const bookingBody = { ...body, userId: userToken };
     const booking = await Booking.create(bookingBody);
 
-    const gateway = process.env.EMAIL_GATEWAY_URL;
+    const gateway =
+      process.env.EMAIL_GATEWAY_URL ||
+      process.env.NEXT_PUBLIC_EMAIL_GATEWAY_URL ||
+      'https://avb-email-backend.onrender.com/api/bookings';
     let emailQueued = false;
     try {
       if (gateway) {

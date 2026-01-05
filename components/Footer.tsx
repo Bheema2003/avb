@@ -32,9 +32,9 @@ const Footer = () => {
           <div>
             <h3 className="font-bold mb-6">Contact Us</h3>
             <div className="space-y-4 text-sm text-gray-400">
-              <p>9591128048</p>
-              <p>9380725515</p>
               <p>7338653351</p>
+              <p>9591128048</p>
+              <p>8073166031</p>
               <p>avbcabz@gmail.com</p>
             </div>
           </div>

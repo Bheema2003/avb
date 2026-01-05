@@ -43,7 +43,7 @@ const Hero = () => {
 
           <div className="pt-8 space-y-2">
             <h3 className="font-bold text-lg">Contact Us</h3>
-            <p className="text-2xl font-bold">9591128048 | 9380725515 | 7338653351</p>
+            <p className="text-2xl font-bold">7338653351 | 9591128048 | 8073166031</p>
             <p className="text-gray-400">avbcabz@gmail.com</p>
           </div>
         </div>
