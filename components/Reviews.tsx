@@ -5,7 +5,8 @@ import { Star } from 'lucide-react';
 
 const Reviews = () => {
   const router = useRouter();
-  const [reviews, setReviews] = useState<any[]>([]);
+  type Review = { _id: string; name: string; rating: number; comment: string };
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [avg, setAvg] = useState(0);
   const [count, setCount] = useState(0);
   const [open, setOpen] = useState(false);
