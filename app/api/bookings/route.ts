@@ -25,17 +25,30 @@ export async function POST(request: Request) {
     const booking = await Booking.create(bookingBody);
 
     const gateway = process.env.EMAIL_GATEWAY_URL || 'http://localhost:4000/api/bookings';
-    let emailSent = false;
+    let emailQueued = false;
     try {
-      const resp = await fetch(gateway, {
+      // Fire-and-forget email sending to avoid blocking the booking creation
+      emailQueued = true;
+      // Minimal payload normalization for backend
+      const payload = {
+        name: body.name,
+        contactNumber: body.contactNumber,
+        pickupLocation: body.pickupLocation,
+        dropLocation: body.dropLocation,
+        pickupDate: body.pickupDate,
+        pickupTime: body.pickupTime,
+        tripType: body.tripType,
+      };
+      // Do not await; log any errors without failing the booking
+      // @ts-ignore
+      fetch(gateway, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-      emailSent = resp.ok;
+        body: JSON.stringify(payload),
+      }).catch(() => {});
     } catch {}
 
-    return NextResponse.json({ success: true, data: booking, emailSent }, { status: 201 });
+    return NextResponse.json({ success: true, data: booking, emailQueued }, { status: 201 });
   } catch (error) {
     console.error('Error creating booking:', error);
     return NextResponse.json({ success: false, error: 'Failed to create booking', detail: (error as Error).message }, { status: 500 });
