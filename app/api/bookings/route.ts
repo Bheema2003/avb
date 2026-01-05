@@ -24,12 +24,11 @@ export async function POST(request: Request) {
     const bookingBody = { ...body, userId: userToken };
     const booking = await Booking.create(bookingBody);
 
-    const gateway = process.env.EMAIL_GATEWAY_URL || 'http://localhost:4000/api/bookings';
+    const gateway = process.env.EMAIL_GATEWAY_URL;
     let emailQueued = false;
     try {
-      // Fire-and-forget email sending to avoid blocking the booking creation
-      emailQueued = true;
-      // Minimal payload normalization for backend
+      if (gateway) {
+        emailQueued = true;
       const payload = {
         name: body.name,
         contactNumber: body.contactNumber,
@@ -39,13 +38,12 @@ export async function POST(request: Request) {
         pickupTime: body.pickupTime,
         tripType: body.tripType,
       };
-      // Do not await; log any errors without failing the booking
-      // @ts-ignore
       fetch(gateway, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       }).catch(() => {});
+      }
     } catch {}
 
     return NextResponse.json({ success: true, data: booking, emailQueued }, { status: 201 });
